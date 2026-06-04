@@ -149,7 +149,7 @@ export default function AnnotationModal({ src, onSave, onClose }: AnnotationModa
       ctx.moveTo(ex, ey);
       ctx.lineTo(ex - head * Math.cos(angle - 0.4), ey - head * Math.sin(angle - 0.4));
       ctx.lineTo(ex - head * Math.cos(angle + 0.4), ey - head * Math.sin(angle + 0.4));
-      ctx.closePath(); ctx.fill();
+      ctx.closePath(); ctx.fill();  
     }
   };
 
