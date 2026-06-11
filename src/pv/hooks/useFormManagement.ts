@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { createInitialForm, createInitialEtatSurface, createInitialReleves, createInitialPoints } from "../helpers";
-import type { EtatSurface, Form, Participant, Points, PV, Releves, Reserve, SavedPVRef } from "../types";
+import { createInitialForm, createInitialEtatSurface, createInitialPartieCourante, createInitialReleves, createInitialPoints } from "../helpers";
+import type { EtatSurface, Form, Participant, PartieCourante, Points, PV, Releves, Reserve, SavedPVRef } from "../types";
 
 export const useFormManagement = () => {
   const [form, setForm] = useState<Form>(createInitialForm);
   const [etatSurface, setEtatSurface] = useState<EtatSurface>(createInitialEtatSurface);
+  const [partieCourante, setPartieCourante] = useState<PartieCourante>(createInitialPartieCourante);
   const [releves, setReleves] = useState<Releves>(createInitialReleves);
   const [points, setPoints] = useState<Points>(createInitialPoints);
   const [savedPV, setSavedPV] = useState<SavedPVRef | null>(null);
@@ -13,6 +14,7 @@ export const useFormManagement = () => {
   const resetForm = () => {
     setForm(createInitialForm());
     setEtatSurface(createInitialEtatSurface());
+    setPartieCourante(createInitialPartieCourante());
     setReleves(createInitialReleves());
     setPoints(createInitialPoints());
     setSavedPV(null);
@@ -29,6 +31,7 @@ export const useFormManagement = () => {
       responsable: pv.responsable || "",
     });
     setEtatSurface(pv.etatSurface || createInitialEtatSurface());
+    setPartieCourante(pv.partieCourante || createInitialPartieCourante());
     setReleves(pv.releves || createInitialReleves());
     setPoints(pv.points || createInitialPoints());
     setEditPvId(pv.id);
@@ -38,6 +41,7 @@ export const useFormManagement = () => {
     form: { ...form },
     reserves: [...reserves],
     etatSurface: { ...etatSurface },
+    partieCourante: { ...partieCourante },
     releves: { ...releves },
     points: { ...points },
     participants,
@@ -49,6 +53,8 @@ export const useFormManagement = () => {
     setForm,
     etatSurface,
     setEtatSurface,
+    partieCourante,
+    setPartieCourante,
     releves,
     setReleves,
     points,

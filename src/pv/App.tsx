@@ -1,35 +1,35 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import "./pv/styles.css";
-import { AnnotationModal, PDFViewer, PhotoGallery, PhotoMenu, ProfileModal } from "./pv/components/index";
-import { I } from "./pv/icons";
-import { CURRENT_USER, SAMPLE_PVS, SURFACE_FIELDS, PARTIE_COURANTE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "./pv/schema";
+import "./styles.css";
+import { AnnotationModal, PDFViewer, PhotoGallery, PhotoMenu, ProfileModal } from "./components/index";
+import { I } from "./icons";
+import { CURRENT_USER, SAMPLE_PVS, SURFACE_FIELDS, PARTIE_COURANTE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "./schema";
 import {
   createPdfDataFromPV,
   downloadPDF,
   pickImages,
   uid,
   useToast,
-} from "./pv/helpers";
+} from "./helpers";
 import {
   useAppState,
   useReserveManagement,
   useParticipantManagement,
   useFormManagement,
   usePVOperations,
-} from "./pv/hooks/index";
+} from "./hooks/index";
 import {
   renderStep1,
   renderStep2,
   renderStep3,
   renderStep4,
   renderStep5,
-} from "./pv/components/StepRenderers";
-import { renderStep6 } from "./pv/components/ParticipantStepRenderer";
-import { renderReserveCard, renderReserveContent, renderReserveList } from "./pv/components/ReserveRenderer";
-import { renderSplashScreen, renderHomeScreen } from "./pv/components/ScreenRenderers";
-import SuccessScreen from "./pv/components/SuccessScreen";
-import type { PV, Reserve, SavePVResult } from "./pv/types";
+} from "./components/StepRenderers";
+import { renderStep6 } from "./components/ParticipantStepRenderer";
+import { renderReserveCard, renderReserveContent, renderReserveList } from "./components/ReserveRenderer";
+import { renderSplashScreen, renderHomeScreen } from "./components/ScreenRenderers";
+import SuccessScreen from "./components/SuccessScreen";
+import type { PV, Reserve, SavePVResult } from "./types";
 
 export default function App() {
   const appState = useAppState();
@@ -297,7 +297,7 @@ export default function App() {
           }));
         },
         (menu) => appState.setPhotoMenu(menu),
-        (photos, title, key) => appState.setGallery({ photos: [...photos], title, key }),
+        (photos, title, key) => appState.setGallery({ photos: [...photos], title, key, stateSource: "etatSurface" }),
       );
     }
 
@@ -532,17 +532,22 @@ export default function App() {
           onClose={() => appState.setGallery(null)}
           onPhotoClick={(photo) => {
             const key = appState.gallery?.key;
+            const source = appState.gallery?.stateSource;
             appState.setPhotoMenu({
               photo,
               onReplace: () => {},
               onUpdate: (newUrl) => {
                 if (key) {
-                  formMgmt.setEtatSurface((curr) => ({
+                  const updater = (curr: { [k: string]: string | { id: number; url: string }[] }) => ({
                     ...curr,
                     [key + "Photos"]: ((curr[key + "Photos"] as { id: number; url: string }[]) || []).map((p) =>
                       p.id === photo.id ? { ...p, url: newUrl } : p,
                     ),
-                  }));
+                  });
+                  if (source === "partieCourante") formMgmt.setPartieCourante((curr) => updater(curr) as typeof curr);
+                  else if (source === "releves") formMgmt.setReleves((curr) => updater(curr) as typeof curr);
+                  else if (source === "points") formMgmt.setPoints((curr) => updater(curr) as typeof curr);
+                  else formMgmt.setEtatSurface((curr) => updater(curr) as typeof curr);
                 }
                 appState.setGallery((prev) =>
                   prev ? { ...prev, photos: prev.photos.map((p) => (p.id === photo.id ? { ...p, url: newUrl } : p)) } : null,

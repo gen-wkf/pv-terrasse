@@ -182,12 +182,11 @@
 .pv-pdf {
   align-self: flex-start;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  border: 1.5px solid #fdd;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: none;
   background: #fff0f0;
-  color: #D32F2F;
   display: inline-flex;
   align-items: center;
   justify-content: center;

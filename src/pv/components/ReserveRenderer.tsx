@@ -13,7 +13,7 @@ export const renderReserveList = (
   <div className="cnt fade-in">
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
       <div style={{ fontSize: 18, fontWeight: 800, color: "#1a1a1a" }}>Toutes les réserves</div>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#6b7280" }}>{String(reserves.length).padStart(2, "0")} / 08</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "#6b7280" }}>{String(reserves.length).padStart(2, "0")} réserve{reserves.length !== 1 ? "s" : ""}</div>
     </div>
 
     {reserves.map((reserve, index) => (
@@ -46,12 +46,10 @@ export const renderReserveList = (
       </div>
     ))}
 
-    {reserves.length < 8 && (
-      <button onClick={onAdd} style={{ width: "100%", padding: "18px", background: "white", color: "#D32F2F", border: "1.5px dashed #D32F2F", borderRadius: 14, fontSize: 13, fontWeight: 800, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, cursor: "pointer", letterSpacing: 0.8, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif" }}>
-        <div style={{ width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #D32F2F", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, lineHeight: 1 }}>+</div>
-        Ajouter une réserve
-      </button>
-    )}
+    <button onClick={onAdd} style={{ width: "100%", padding: "18px", background: "white", color: "#D32F2F", border: "1.5px dashed #D32F2F", borderRadius: 14, fontSize: 13, fontWeight: 800, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, cursor: "pointer", letterSpacing: 0.8, textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #D32F2F", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, lineHeight: 1 }}>+</div>
+      Ajouter une réserve
+    </button>
 
     <div style={{ height: 8 }} />
   </div>

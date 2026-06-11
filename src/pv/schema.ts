@@ -1,4 +1,4 @@
-import type { EtatSurface, Form, Participant, Points, PV, Releves } from "./types";
+import type { EtatSurface, Form, Participant, PartieCourante, Points, PV, Releves } from "./types";
 
 export const AVATAR_COLORS = ["#D32F2F", "#1565C0", "#2E7D32", "#6A1B9A", "#E65100", "#00695C"];
 
@@ -113,22 +113,27 @@ export const INITIAL_ETAT_SURFACE: EtatSurface = {
   prop2: "SO",  prop2Photos: [], prop2Comment: "",
 };
 
+export const INITIAL_PARTIE_COURANTE: PartieCourante = {
+  pente: "SO", pentePhotos: [], penteComment: "",
+  planeite: "SO", planeitePhotos: [], planeiteComment: "",
+};
+
 export const INITIAL_RELEVES: Releves = {
-  trous: "SO",
-  remplissage: "SO",
-  hauteur: "SO",
-  profondeur: "SO",
-  protection: "SO",
-  niveaux: "SO",
+  trous: "SO", trousPhotos: [], trousComment: "",
+  remplissage: "SO", remplissagePhotos: [], remplissageComment: "",
+  hauteur: "SO", hauteurPhotos: [], hauteurComment: "",
+  profondeur: "SO", profondeurPhotos: [], profondeurComment: "",
+  protection: "SO", protectionPhotos: [], protectionComment: "",
+  niveaux: "SO", niveauxPhotos: [], niveauxComment: "",
 };
 
 export const INITIAL_POINTS: Points = {
-  tremies: "SO",
-  eaux: "SO",
-  deversoirs: "SO",
-  trop: "SO",
-  reservations: "SO",
-  joints: "SO",
+  tremies: "SO", tremiesPhotos: [], tremiesComment: "",
+  eaux: "SO", eauxPhotos: [], eauxComment: "",
+  deversoirs: "SO", deversoirsPhotos: [], deversoirsComment: "",
+  trop: "SO", tropPhotos: [], tropComment: "",
+  reservations: "SO", reservationsPhotos: [], reservationsComment: "",
+  joints: "SO", jointsPhotos: [], jointsComment: "",
   observations: "",
 };
 
@@ -148,10 +153,14 @@ export const INITIAL_PARTICIPANTS: Participant[] = [
 ];
 
 export const SURFACE_FIELDS: [string, string][] = [
-  ["reg1", "Régularité du support (surface)"],
-  ["prop1", "Propreté du support (surface)"],
-  ["reg2", "Régularité du support (partie courante)"],
-  ["prop2", "Propreté du support (partie courante)"],
+  ["reg1", "Régularité du support "],
+  ["prop1", "Propreté du support "],
+  
+];
+
+export const PARTIE_COURANTE_FIELDS: [string, string][] = [
+  ["pente", "Pente"],
+  ["planeite", "Planéité du support"],
 ];
 
 export const RELEVES_FIELDS: [string, string][] = [
@@ -172,114 +181,4 @@ export const POINT_FIELDS: [string, string][] = [
   ["joints", "Joints de dilatation"],
 ];
 
-export const SAMPLE_PVS: PV[] = [
-  {
-    id: 1,
-    num: "PV #2024-0892",
-    name: "Résidence Les Alizés",
-    agency: "Agence Nantes",
-    date: "12 Oct. 2023",
-    etablissement: "Établissement Nord-Ouest",
-    responsable: "M. Laurent",
-    reserves: [
-      {
-        id: 10,
-        localisation: "Toiture Nord",
-        detail: "Fissure relevé",
-        photos: [{ id: 20, url: "https://picsum.photos/seed/rv1/300/200" }],
-      },
-    ],
-    etatSurface: { reg1: "Conforme", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "Conforme", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-    releves: { trous: "Conforme", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-    points: { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
-    participants: [{ id: 1, nom: "Jean Dupont", titre: "Conducteur de Travaux", signed: true, sigDataUrl: null, reception: "OUI", miseEnConformite: "", email: "", autoEmail: false }],
-    savedRef: "PV #2024-0892",
-    savedDate: "12 Oct. 2023 • 09:15",
-    versions: [
-      {
-        id: 901,
-        savedDate: "12 Oct. 2023 • 09:15",
-        ref: "PV # 2024 - 0892",
-        chantier: "Résidence Les Alizés",
-        agency: "Agence Nantes",
-        etablissement: "SMAC NANTES",
-        zone: "",
-        date: "12 Oct. 2023",
-        responsable: "M. Laurent",
-        reserves: [{ id: 10, localisation: "Toiture Nord", detail: "Fissure relevé", photos: [{ id: 20, url: "https://picsum.photos/seed/rv1/300/200" }] }],
-        etatSurface: { reg1: "Conforme", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "Conforme", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-        releves: { trous: "Conforme", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-        points: { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
-        participants: [{ id: 1, nom: "Jean Dupont", titre: "Conducteur de Travaux", signed: true, sigDataUrl: null, reception: "OUI", miseEnConformite: "", email: "", autoEmail: false }],
-      },
-    ],
-  },
-  {
-    id: 2,
-    num: "PV #2024-0901",
-    name: "Campus Innovation",
-    agency: "Agence Rennes",
-    date: "12 Oct. 2023",
-    etablissement: "Établissement Ouest",
-    responsable: "Mme. Bertrand",
-    reserves: [],
-    etatSurface: { reg1: "Non Conforme", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "SO", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-    releves: { trous: "SO", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-    points: { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
-    participants: [{ id: 1, nom: "Alice Martin", titre: "Ingénieure", signed: false, sigDataUrl: null, reception: "NON", miseEnConformite: "", email: "", autoEmail: false }],
-    savedRef: "PV #2024-0901",
-    savedDate: "12 Oct. 2023 • 14:00",
-    versions: [
-      {
-        id: 902,
-        savedDate: "12 Oct. 2023 • 14:00",
-        ref: "PV # 2024 - 0901",
-        chantier: "Campus Innovation",
-        agency: "Agence Rennes",
-        etablissement: "SMAC RENNES",
-        zone: "",
-        date: "12 Oct. 2023",
-        responsable: "Mme. Bertrand",
-        reserves: [],
-        etatSurface: { reg1: "Non Conforme", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "SO", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-        releves: { trous: "SO", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-        points: { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
-        participants: [{ id: 1, nom: "Alice Martin", titre: "Ingénieure", signed: false, sigDataUrl: null, reception: "NON", miseEnConformite: "", email: "", autoEmail: false }],
-      },
-    ],
-  },
-  {
-    id: 3,
-    num: "PV #2024-0785",
-    name: "Le Belvédère",
-    agency: "Agence Nantes",
-    date: "05 Oct. 2023",
-    etablissement: "Établissement Nord-Ouest",
-    responsable: "M. Lefebvre",
-    reserves: [],
-    etatSurface: { reg1: "SO", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "SO", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-    releves: { trous: "SO", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-    points: { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
-    participants: [{ id: 1, nom: "Paul Moreau", titre: "Chef de chantier", signed: true, sigDataUrl: null, reception: "OUI", miseEnConformite: "", email: "", autoEmail: false }],
-    savedRef: "PV #2024-0785",
-    savedDate: "05 Oct. 2023 • 11:30",
-    versions: [],
-  },
-  {
-    id: 4,
-    num: "PV #2024-0912",
-    name: "Entrepôt LogiSud",
-    agency: "Agence Bordeaux",
-    date: "Ce matin",
-    etablissement: "Établissement Sud-Ouest",
-    responsable: "Mme. Rousseau",
-    reserves: [],
-    etatSurface: { reg1: "SO", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "SO", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-    releves: { trous: "SO", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-    points: { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
-    participants: [{ id: 1, nom: "Sophie Blanc", titre: "Ingénieure Travaux", signed: false, sigDataUrl: null, reception: "OUI", miseEnConformite: "", email: "", autoEmail: false }],
-    savedRef: "PV #2024-0912",
-    savedDate: "Aujourd'hui • 08:45",
-    versions: [],
-  },
-];
+export const SAMPLE_PVS: PV[] = [];

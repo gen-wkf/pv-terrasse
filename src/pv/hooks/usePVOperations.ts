@@ -1,10 +1,11 @@
 import { formatPVTimestamp, genPVRef, uid } from "../helpers";
-import type { EtatSurface, Form, Participant, Points, PV, Releves, Reserve, SavePVResult } from "../types";
+import type { EtatSurface, Form, Participant, PartieCourante, Points, PV, Releves, Reserve, SavePVResult } from "../types";
 
 export const buildCurrentPVData = (
   form: Form,
   reserves: Reserve[],
   etatSurface: EtatSurface,
+  partieCourante: PartieCourante,
   releves: Releves,
   points: Points,
   participants: Participant[],
@@ -13,6 +14,7 @@ export const buildCurrentPVData = (
   form: { ...form },
   reserves: [...reserves],
   etatSurface: { ...etatSurface },
+  partieCourante: { ...partieCourante },
   releves: { ...releves },
   points: { ...points },
   participants,
@@ -26,6 +28,7 @@ export const usePVOperations = () => {
     form: Form,
     reserves: Reserve[],
     etatSurface: EtatSurface,
+    partieCourante: PartieCourante,
     releves: Releves,
     points: Points,
     capturedParticipants: Participant[],
@@ -49,6 +52,7 @@ export const usePVOperations = () => {
       responsable: form.responsable || "",
       reserves: [...reserves],
       etatSurface: { ...etatSurface },
+      partieCourante: { ...partieCourante },
       releves: { ...releves },
       points: { ...points },
       participants: capturedParticipants,
@@ -68,6 +72,7 @@ export const usePVOperations = () => {
                 responsable: form.responsable || pv.responsable,
                 reserves: [...reserves],
                 etatSurface: { ...etatSurface },
+                partieCourante: { ...partieCourante },
                 releves: { ...releves },
                 points: { ...points },
                 participants: capturedParticipants,
@@ -84,6 +89,7 @@ export const usePVOperations = () => {
         date: dateStr,
         reserves: [...reserves],
         etatSurface: { ...etatSurface },
+        partieCourante: { ...partieCourante },
         releves: { ...releves },
         points: { ...points },
         participants: capturedParticipants,
@@ -103,6 +109,7 @@ export const usePVOperations = () => {
       responsable: form.responsable || "—",
       reserves: [...reserves],
       etatSurface: { ...etatSurface },
+      partieCourante: { ...partieCourante },
       releves: { ...releves },
       points: { ...points },
       participants: capturedParticipants,

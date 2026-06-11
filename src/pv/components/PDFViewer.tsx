@@ -132,7 +132,7 @@ export default function PDFViewer({ pvData, onClose }: PDFViewerProps) {
             {RELEVES_FIELDS.map(([key, label]) => (
               <div key={key} className="pdf-row">
                 <span className="pdf-row-key">{label}</span>
-                <Badge value={releves[key]} />
+                <Badge value={releves[key] as string} />
               </div>
             ))}
           </div>
@@ -142,7 +142,7 @@ export default function PDFViewer({ pvData, onClose }: PDFViewerProps) {
             {POINT_FIELDS.map(([key, label]) => (
               <div key={key} className="pdf-row">
                 <span className="pdf-row-key">{label}</span>
-                <Badge value={points[key]} />
+                <Badge value={points[key] as string} />
               </div>
             ))}
             {points.observations && (

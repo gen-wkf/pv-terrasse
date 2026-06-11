@@ -35,24 +35,30 @@ export interface EtatSurface {
   prop2: string; prop2Photos: Photo[]; prop2Comment: string;
 }
 
+export interface PartieCourante {
+  [key: string]: string | Photo[];
+  pente: string; pentePhotos: Photo[]; penteComment: string;
+  planeite: string; planeitePhotos: Photo[]; planeiteComment: string;
+}
+
 export interface Releves {
-  [key: string]: string;
-  trous: string;
-  remplissage: string;
-  hauteur: string;
-  profondeur: string;
-  protection: string;
-  niveaux: string;
+  [key: string]: string | Photo[];
+  trous: string; trousPhotos: Photo[]; trousComment: string;
+  remplissage: string; remplissagePhotos: Photo[]; remplissageComment: string;
+  hauteur: string; hauteurPhotos: Photo[]; hauteurComment: string;
+  profondeur: string; profondeurPhotos: Photo[]; profondeurComment: string;
+  protection: string; protectionPhotos: Photo[]; protectionComment: string;
+  niveaux: string; niveauxPhotos: Photo[]; niveauxComment: string;
 }
 
 export interface Points {
-  [key: string]: string;
-  tremies: string;
-  eaux: string;
-  deversoirs: string;
-  trop: string;
-  reservations: string;
-  joints: string;
+  [key: string]: string | Photo[];
+  tremies: string; tremiesPhotos: Photo[]; tremiesComment: string;
+  eaux: string; eauxPhotos: Photo[]; eauxComment: string;
+  deversoirs: string; deversoirsPhotos: Photo[]; deversoirsComment: string;
+  trop: string; tropPhotos: Photo[]; tropComment: string;
+  reservations: string; reservationsPhotos: Photo[]; reservationsComment: string;
+  joints: string; jointsPhotos: Photo[]; jointsComment: string;
   observations: string;
 }
 
@@ -89,6 +95,7 @@ export interface PVVersion {
   responsable: string;
   reserves: Reserve[];
   etatSurface: EtatSurface;
+  partieCourante: PartieCourante;
   releves: Releves;
   points: Points;
   participants: Participant[];
@@ -105,6 +112,7 @@ export interface PV {
   responsable: string;
   reserves: Reserve[];
   etatSurface: EtatSurface;
+  partieCourante: PartieCourante;
   releves: Releves;
   points: Points;
   participants: Participant[];
@@ -130,6 +138,7 @@ export interface PdfData {
   form: Form;
   reserves: Reserve[];
   etatSurface: EtatSurface;
+  partieCourante: PartieCourante;
   releves: Releves;
   points: Points;
   participants: Participant[];
@@ -151,6 +160,7 @@ export interface GalleryState {
   photos: Photo[];
   title: string;
   key?: string;
+  stateSource?: "etatSurface" | "partieCourante" | "releves" | "points";
 }
 
 export interface SavePVResult {

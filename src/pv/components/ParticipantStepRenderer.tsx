@@ -2,7 +2,7 @@ import SignaturePad from "./SignaturePad";
 import { I } from "../icons";
 import type { Participant, Reserve, SavedPVRef, Step5Errors } from "../types";
 
-export const renderStep5 = (
+export const renderStep6 = (
   participants: Participant[],
   reserves: Reserve[],
   step5Errors: Step5Errors,
@@ -104,7 +104,7 @@ export const renderStep5 = (
   </div>
 );
 
-export const renderStep6 = (
+export const renderStep7 = (
   editPvId: number | null,
   savedPV: SavedPVRef | null,
   onViewPDF: () => void,

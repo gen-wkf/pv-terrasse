@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { I } from "../icons";
-import { SURFACE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "../schema";
+import { SURFACE_FIELDS, PARTIE_COURANTE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "../schema";
 import VersionModal from "./VersionModal";
 import type { Photo, PV } from "../types";
 
@@ -119,6 +119,7 @@ export default function PVView({ pv, onBack, onPDF, onEdit }: PVViewProps) {
   const reserves = pv.reserves || [];
   const participants = pv.participants || [];
   const etatSurface = pv.etatSurface || {};
+  const partieCourante = pv.partieCourante || {};
   const releves = pv.releves || {};
   const points = pv.points || {};
 
@@ -204,15 +205,21 @@ export default function PVView({ pv, onBack, onPDF, onEdit }: PVViewProps) {
           ))}
         </Card>
 
+        <Card title="Partie courante">
+          {PARTIE_COURANTE_FIELDS.map(([key, label], index) => (
+            <StatusRow key={key} label={label} value={partieCourante[key] as string} last={index === PARTIE_COURANTE_FIELDS.length - 1} />
+          ))}
+        </Card>
+
         <Card title="Relevés d'étanchéité">
           {RELEVES_FIELDS.map(([key, label], index) => (
-            <StatusRow key={key} label={label} value={releves[key]} last={index === RELEVES_FIELDS.length - 1} />
+            <StatusRow key={key} label={label} value={releves[key] as string} last={index === RELEVES_FIELDS.length - 1} />
           ))}
         </Card>
 
         <Card title="Points singuliers">
           {POINT_FIELDS.map(([key, label], index) => (
-            <StatusRow key={key} label={label} value={points[key]} last={index === POINT_FIELDS.length - 1 && !points.observations} />
+            <StatusRow key={key} label={label} value={points[key] as string} last={index === POINT_FIELDS.length - 1 && !points.observations} />
           ))}
           {points.observations && (
             <div style={{ padding: "10px 16px 12px", borderTop: "1px solid #f3f4f6" }}>

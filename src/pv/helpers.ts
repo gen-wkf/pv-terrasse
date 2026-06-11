@@ -6,13 +6,15 @@ import {
   INITIAL_ETAT_SURFACE,
   INITIAL_FORM,
   INITIAL_PARTICIPANT,
+  INITIAL_PARTIE_COURANTE,
   INITIAL_POINTS,
   INITIAL_RELEVES,
   SURFACE_FIELDS,
+  PARTIE_COURANTE_FIELDS,
   RELEVES_FIELDS,
   POINT_FIELDS,
 } from "./schema";
-import type { EtatSurface, Form, Participant, PdfData, Photo, Points, Releves, Toast } from "./types";
+import type { EtatSurface, Form, Participant, PartieCourante, PdfData, Photo, Points, Releves, Toast } from "./types";
 
 let _id = 300;
 
@@ -88,6 +90,7 @@ export const initials = (name: string): string => {
 
 export const createInitialForm = (): Form => ({ ...INITIAL_FORM });
 export const createInitialEtatSurface = (): EtatSurface => ({ ...INITIAL_ETAT_SURFACE });
+export const createInitialPartieCourante = (): PartieCourante => ({ ...INITIAL_PARTIE_COURANTE });
 export const createInitialReleves = (): Releves => ({ ...INITIAL_RELEVES });
 export const createInitialPoints = (): Points => ({ ...INITIAL_POINTS });
 
@@ -113,6 +116,7 @@ export const createPdfDataFromPV = (pv: {
   responsable?: string;
   reserves?: PdfData["reserves"];
   etatSurface?: EtatSurface;
+  partieCourante?: PartieCourante;
   releves?: Releves;
   points?: Points;
   participants?: Participant[];
@@ -130,8 +134,9 @@ export const createPdfDataFromPV = (pv: {
   },
   reserves: pv.reserves || [],
   etatSurface: pv.etatSurface || { reg1: "SO", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "SO", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-  releves: pv.releves || { trous: "SO", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-  points: pv.points || { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
+  partieCourante: pv.partieCourante || { pente: "SO", pentePhotos: [], penteComment: "", planeite: "SO", planeitePhotos: [], planeiteComment: "" },
+  releves: pv.releves || { trous: "SO", trousPhotos: [], trousComment: "", remplissage: "SO", remplissagePhotos: [], remplissageComment: "", hauteur: "SO", hauteurPhotos: [], hauteurComment: "", profondeur: "SO", profondeurPhotos: [], profondeurComment: "", protection: "SO", protectionPhotos: [], protectionComment: "", niveaux: "SO", niveauxPhotos: [], niveauxComment: "" },
+  points: pv.points || { tremies: "SO", tremiesPhotos: [], tremiesComment: "", eaux: "SO", eauxPhotos: [], eauxComment: "", deversoirs: "SO", deversoirsPhotos: [], deversoirsComment: "", trop: "SO", tropPhotos: [], tropComment: "", reservations: "SO", reservationsPhotos: [], reservationsComment: "", joints: "SO", jointsPhotos: [], jointsComment: "", observations: "" },
   participants: pv.participants || [],
   savedPV: {
     ref: pv.savedRef || pv.num || "—",
@@ -148,6 +153,7 @@ export const createPdfDataFromVersion = (version: {
   responsable?: string;
   reserves?: PdfData["reserves"];
   etatSurface?: EtatSurface;
+  partieCourante?: PartieCourante;
   releves?: Releves;
   points?: Points;
   participants?: Participant[];
@@ -164,8 +170,9 @@ export const createPdfDataFromVersion = (version: {
   },
   reserves: version.reserves || [],
   etatSurface: version.etatSurface || { reg1: "SO", reg1Photos: [], reg1Comment: "", prop1: "SO", prop1Photos: [], prop1Comment: "", reg2: "SO", reg2Photos: [], reg2Comment: "", prop2: "SO", prop2Photos: [], prop2Comment: "" },
-  releves: version.releves || { trous: "SO", remplissage: "SO", hauteur: "SO", profondeur: "SO", protection: "SO", niveaux: "SO" },
-  points: version.points || { tremies: "SO", eaux: "SO", deversoirs: "SO", trop: "SO", reservations: "SO", joints: "SO", observations: "" },
+  partieCourante: version.partieCourante || { pente: "SO", pentePhotos: [], penteComment: "", planeite: "SO", planeitePhotos: [], planeiteComment: "" },
+  releves: version.releves || { trous: "SO", trousPhotos: [], trousComment: "", remplissage: "SO", remplissagePhotos: [], remplissageComment: "", hauteur: "SO", hauteurPhotos: [], hauteurComment: "", profondeur: "SO", profondeurPhotos: [], profondeurComment: "", protection: "SO", protectionPhotos: [], protectionComment: "", niveaux: "SO", niveauxPhotos: [], niveauxComment: "" },
+  points: version.points || { tremies: "SO", tremiesPhotos: [], tremiesComment: "", eaux: "SO", eauxPhotos: [], eauxComment: "", deversoirs: "SO", deversoirsPhotos: [], deversoirsComment: "", trop: "SO", tropPhotos: [], tropComment: "", reservations: "SO", reservationsPhotos: [], reservationsComment: "", joints: "SO", jointsPhotos: [], jointsComment: "", observations: "" },
   participants: version.participants || [],
   savedPV: {
     ref: version.ref || "—",
@@ -174,7 +181,7 @@ export const createPdfDataFromVersion = (version: {
 });
 
 export function downloadPDF(pvData: PdfData): void {
-  const { form, reserves, etatSurface, releves, points, participants, savedPV } = pvData;
+  const { form, reserves, etatSurface, partieCourante, releves, points, participants, savedPV } = pvData;
 
   const fmtDate = (iso: string) => (iso ? iso.split("-").reverse().join("/") : "");
 
@@ -314,14 +321,40 @@ export function downloadPDF(pvData: PdfData): void {
   )}
 
   ${section(
+    "Partie Courante",
+    `<table style="width:100%;border-collapse:collapse">${PARTIE_COURANTE_FIELDS.map(([key, label]) => {
+      const val = partieCourante[key] as string;
+      const photos = val === "Non Conforme" ? (partieCourante[key + "Photos"] as Photo[]) || [] : [];
+      const comment = val === "Non Conforme" ? (partieCourante[key + "Comment"] as string) || "" : "";
+      const photosHtml = photos.length > 0 ? `<tr><td colspan="2" style="padding:8px 8px 14px;background:#fff8f8"><div style="font-size:11px;font-weight:800;color:#D32F2F;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Photos (${photos.length})</div><div style="display:flex;flex-direction:column;gap:14px">${photos.map((p) => `<img src="${p.url}" style="width:100%;height:auto;min-height:180px;object-fit:cover;border-radius:10px;border:2px solid #D32F2F;display:block"/>`).join("")}</div></td></tr>` : "";
+      const commentHtml = comment ? `<tr><td colspan="2" style="padding:0 8px 14px;background:#fff8f8;font-size:13px;color:#555;font-style:italic;border-bottom:1px solid #f0ece8;line-height:1.6">${comment}</td></tr>` : "";
+      return toggleRow(label, val) + photosHtml + commentHtml;
+    }).join("")}</table>`,
+  )}
+
+  ${section(
     "Relevés d'Étanchéité",
-    `<table style="width:100%;border-collapse:collapse">${RELEVES_FIELDS.map(([key, label]) => toggleRow(label, releves[key])).join("")}</table>`,
+    `<table style="width:100%;border-collapse:collapse">${RELEVES_FIELDS.map(([key, label]) => {
+      const val = releves[key] as string;
+      const photos = val === "Non Conforme" ? (releves[key + "Photos"] as Photo[]) || [] : [];
+      const comment = val === "Non Conforme" ? (releves[key + "Comment"] as string) || "" : "";
+      const photosHtml = photos.length > 0 ? `<tr><td colspan="2" style="padding:8px 8px 14px;background:#fff8f8"><div style="font-size:11px;font-weight:800;color:#D32F2F;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Photos (${photos.length})</div><div style="display:flex;flex-direction:column;gap:14px">${photos.map((p) => `<img src="${p.url}" style="width:100%;height:auto;min-height:180px;object-fit:cover;border-radius:10px;border:2px solid #D32F2F;display:block"/>`).join("")}</div></td></tr>` : "";
+      const commentHtml = comment ? `<tr><td colspan="2" style="padding:0 8px 14px;background:#fff8f8;font-size:13px;color:#555;font-style:italic;border-bottom:1px solid #f0ece8;line-height:1.6">${comment}</td></tr>` : "";
+      return toggleRow(label, val) + photosHtml + commentHtml;
+    }).join("")}</table>`,
   )}
 
   ${section(
     "Points Singuliers",
     `<table style="width:100%;border-collapse:collapse">
-      ${POINT_FIELDS.map(([key, label]) => toggleRow(label, points[key])).join("")}
+      ${POINT_FIELDS.map(([key, label]) => {
+        const val = points[key] as string;
+        const photos = val === "Non Conforme" ? (points[key + "Photos"] as Photo[]) || [] : [];
+        const comment = val === "Non Conforme" ? (points[key + "Comment"] as string) || "" : "";
+        const photosHtml = photos.length > 0 ? `<tr><td colspan="2" style="padding:8px 8px 14px;background:#fff8f8"><div style="font-size:11px;font-weight:800;color:#D32F2F;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Photos (${photos.length})</div><div style="display:flex;flex-direction:column;gap:14px">${photos.map((p) => `<img src="${p.url}" style="width:100%;height:auto;min-height:180px;object-fit:cover;border-radius:10px;border:2px solid #D32F2F;display:block"/>`).join("")}</div></td></tr>` : "";
+        const commentHtml = comment ? `<tr><td colspan="2" style="padding:0 8px 14px;background:#fff8f8;font-size:13px;color:#555;font-style:italic;border-bottom:1px solid #f0ece8;line-height:1.6">${comment}</td></tr>` : "";
+        return toggleRow(label, val) + photosHtml + commentHtml;
+      }).join("")}
       ${points.observations ? `<tr><td colspan="2" style="padding:14px 8px;font-size:13px;border-top:1px solid #f0ece8"><div style="font-weight:700;color:#444;margin-bottom:6px">Autres écarts &amp; observations</div><div style="color:#1a1a1a;font-size:14px;line-height:1.6">${points.observations}</div></td></tr>` : ""}
     </table>`,
   )}
@@ -351,7 +384,7 @@ export function downloadPDF(pvData: PdfData): void {
         scrollY: 0,
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      pagebreak: { mode: "avoid-all" },
+      pagebreak: { mode: ["css", "legacy"] },
     })
     .from(content, "string")
     .save();

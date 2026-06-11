@@ -62,7 +62,7 @@ export const renderHomeScreen = (
                 <div className="empty-state">
                   <div className="empty-icon"><I.EmptyDoc /></div>
                   <div className="empty-title">Aucun PV trouvé</div>
-                  <div className="empty-desc">Commencez par créer un nouveau PV de réception.</div>
+                  <div className="empty-desc">Commencez votre première inspection dès maintenant pour générer votre premier procès-verbal.</div>
                   <button className="btn-red" onClick={onOpenNewPV}><I.Plus /> Créer un nouveau PV</button>
                 </div>
               ) : (

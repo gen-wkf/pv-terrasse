@@ -1,8 +1,8 @@
-import { AGENCES, ETABLISSEMENTS, SURFACE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "../schema";
+import { AGENCES, ETABLISSEMENTS, SURFACE_FIELDS, PARTIE_COURANTE_FIELDS, RELEVES_FIELDS, POINT_FIELDS } from "../schema";
 import ToggleGroup from "./ToggleGroup";
 import { I } from "../icons";
 import Dictaphone from "./Dictaphone";
-import type { EtatSurface, Form, Photo, PhotoMenuState, Points, Releves, Reserve, Step2Errors } from "../types";
+import type { EtatSurface, Form, PartieCourante, Photo, PhotoMenuState, Points, Releves, Reserve, Step2Errors } from "../types";
 
 export const renderStep1 = (
   form: Form,
@@ -210,50 +210,257 @@ export const renderStep2 = (
 };
 
 export const renderStep3 = (
-  releves: Releves,
-  setReleves: React.Dispatch<React.SetStateAction<Releves>>,
-): React.ReactElement => (
-  <div className="cnt fade-in">
-    <div className="sec">
-      <div className="sec-hdr">
-        <div style={{ fontSize: 20, color: "#D32F2F" }}>◎</div>
-        <div className="sec-title">Relevés d'Étanchéité</div>
-      </div>
-      {RELEVES_FIELDS.map(([key, label], index) => (
-        <div key={key}>
-          <ToggleGroup label={label} value={releves[key]} onChange={(value) => setReleves((current) => ({ ...current, [key]: value }))} />
-          {index < RELEVES_FIELDS.length - 1 && <div className="sec-divider" />}
+  partieCourante: PartieCourante,
+  setPartieCourante: React.Dispatch<React.SetStateAction<PartieCourante>>,
+  onAddPhoto: (key: string) => void,
+  onRemovePhoto: (key: string, photoId: number) => void,
+  onPhotoMenu: (menu: PhotoMenuState) => void,
+  onOpenGallery: (photos: Photo[], title: string, key: string) => void,
+  stepErrors: Step2Errors,
+): React.ReactElement => {
+  const nonConformeExtras = (key: string, label: string) => {
+    const photos = (partieCourante[key + "Photos"] as Photo[]) || [];
+    const comment = (partieCourante[key + "Comment"] as string) || "";
+    const fieldErr = stepErrors?.[key];
+    const photoErr = fieldErr?.photo;
+    const commentErr = fieldErr?.comment;
+    const VISIBLE = 2;
+    const shownPhotos = photos.slice(0, VISIBLE);
+    const hiddenCount = photos.length - VISIBLE;
+    return (
+      <div style={{ marginTop: 10, marginBottom: 4, padding: 14, background: "#fff8f8", borderRadius: 12, border: `1.5px solid ${photoErr || commentErr ? "#D32F2F" : "#fdd"}` }}>
+        <div>
+          <label className="lbl" style={{ color: "#D32F2F" }}>Photos <span className="req-star">*</span> ({photos.length}/5)</label>
+          {photos.length === 0 ? (
+            <div className="img-upload-empty" onClick={() => onAddPhoto(key)} style={photoErr ? { borderColor: "#D32F2F", background: "#fff5f5" } : {}}>
+              <div className="img-upload-empty-icon"><I.ImgPlus /></div>
+              <div className="img-upload-empty-lbl">Ajouter une photo</div>
+              <div className="img-upload-empty-sub">Appuyez pour sélectionner</div>
+            </div>
+          ) : (
+            <>
+              <div className="photo-grid">
+                {shownPhotos.map((photo, i) => {
+                  const isLast = i === VISIBLE - 1 && hiddenCount > 0;
+                  return (
+                    <div key={photo.id} className="ph-wrap" style={{ position: "relative" }}>
+                      <img src={photo.url} alt="" className="ph-img" style={isLast ? { filter: "brightness(0.35)" } : {}}
+                        onClick={() => isLast ? onOpenGallery(photos, label, key) : onPhotoMenu({ photo, onReplace: () => {}, onUpdate: (url) => setPartieCourante((curr) => ({ ...curr, [key + "Photos"]: (curr[key + "Photos"] as Photo[]).map((p) => p.id === photo.id ? { ...p, url } : p) })) })}
+                      />
+                      {isLast && <div onClick={() => onOpenGallery(photos, label, key)} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "inherit", zIndex: 1 }}><span style={{ color: "white", fontSize: 22, fontWeight: 800 }}>+{hiddenCount}</span></div>}
+                      <div className="ph-remove" style={{ zIndex: 2 }} onClick={() => onRemovePhoto(key, photo.id)}>×</div>
+                    </div>
+                  );
+                })}
+                {photos.length < 5 && <div className="ph-add-tile" onClick={() => onAddPhoto(key)} title="Ajouter"><I.PlusCircle /></div>}
+              </div>
+              {hiddenCount > 0 && <button onClick={() => onOpenGallery(photos, label, key)} style={{ marginTop: 10, width: "100%", background: "#fff0f0", border: "1.5px solid #fdd", borderRadius: 10, padding: "9px 0", color: "#D32F2F", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}>Voir toutes les photos ({photos.length})</button>}
+            </>
+          )}
+          {photoErr && <span className="err-msg" style={{ marginTop: 6, display: "block" }}>Au moins une photo est requise</span>}
         </div>
-      ))}
+        <div className="field-wrap" style={{ marginTop: 12 }}>
+          <label className="lbl">Commentaire <span className="req-star">*</span></label>
+          <Dictaphone value={comment} onChange={(v) => setPartieCourante((curr) => ({ ...curr, [key + "Comment"]: v }))} hasError={!!commentErr} />
+          {commentErr && <span className="err-msg">Le commentaire est obligatoire</span>}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="cnt fade-in">
+      <div className="sec">
+        <div className="sec-hdr">
+          <div style={{ fontSize: 20 }}>▤</div>
+          <div className="sec-title">Partie Courante</div>
+        </div>
+        {PARTIE_COURANTE_FIELDS.map(([key, label], index) => (
+          <div key={key}>
+            <ToggleGroup
+              label={label}
+              value={partieCourante[key] as string}
+              onChange={(value) => setPartieCourante((current) => ({ ...current, [key]: value, ...(value !== "Non Conforme" ? { [key + "Photos"]: [], [key + "Comment"]: "" } : {}) }))}
+            />
+            {partieCourante[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {index < PARTIE_COURANTE_FIELDS.length - 1 && <div className="sec-divider" />}
+          </div>
+        ))}
+      </div>
+      <div style={{ height: 8 }} />
     </div>
-    <div style={{ height: 8 }} />
-  </div>
-);
+  );
+};
 
 export const renderStep4 = (
+  releves: Releves,
+  setReleves: React.Dispatch<React.SetStateAction<Releves>>,
+  onAddPhoto: (key: string) => void,
+  onRemovePhoto: (key: string, photoId: number) => void,
+  onPhotoMenu: (menu: PhotoMenuState) => void,
+  onOpenGallery: (photos: Photo[], title: string, key: string) => void,
+  stepErrors: Step2Errors,
+): React.ReactElement => {
+  const nonConformeExtras = (key: string, label: string) => {
+    const photos = (releves[key + "Photos"] as Photo[]) || [];
+    const comment = (releves[key + "Comment"] as string) || "";
+    const fieldErr = stepErrors?.[key];
+    const photoErr = fieldErr?.photo;
+    const commentErr = fieldErr?.comment;
+    const VISIBLE = 2;
+    const shownPhotos = photos.slice(0, VISIBLE);
+    const hiddenCount = photos.length - VISIBLE;
+    return (
+      <div style={{ marginTop: 10, marginBottom: 4, padding: 14, background: "#fff8f8", borderRadius: 12, border: `1.5px solid ${photoErr || commentErr ? "#D32F2F" : "#fdd"}` }}>
+        <div>
+          <label className="lbl" style={{ color: "#D32F2F" }}>Photos <span className="req-star">*</span> ({photos.length}/5)</label>
+          {photos.length === 0 ? (
+            <div className="img-upload-empty" onClick={() => onAddPhoto(key)} style={photoErr ? { borderColor: "#D32F2F", background: "#fff5f5" } : {}}>
+              <div className="img-upload-empty-icon"><I.ImgPlus /></div>
+              <div className="img-upload-empty-lbl">Ajouter une photo</div>
+              <div className="img-upload-empty-sub">Appuyez pour sélectionner</div>
+            </div>
+          ) : (
+            <>
+              <div className="photo-grid">
+                {shownPhotos.map((photo, i) => {
+                  const isLast = i === VISIBLE - 1 && hiddenCount > 0;
+                  return (
+                    <div key={photo.id} className="ph-wrap" style={{ position: "relative" }}>
+                      <img src={photo.url} alt="" className="ph-img" style={isLast ? { filter: "brightness(0.35)" } : {}}
+                        onClick={() => isLast ? onOpenGallery(photos, label, key) : onPhotoMenu({ photo, onReplace: () => {}, onUpdate: (url) => setReleves((curr) => ({ ...curr, [key + "Photos"]: (curr[key + "Photos"] as Photo[]).map((p) => p.id === photo.id ? { ...p, url } : p) })) })}
+                      />
+                      {isLast && <div onClick={() => onOpenGallery(photos, label, key)} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "inherit", zIndex: 1 }}><span style={{ color: "white", fontSize: 22, fontWeight: 800 }}>+{hiddenCount}</span></div>}
+                      <div className="ph-remove" style={{ zIndex: 2 }} onClick={() => onRemovePhoto(key, photo.id)}>×</div>
+                    </div>
+                  );
+                })}
+                {photos.length < 5 && <div className="ph-add-tile" onClick={() => onAddPhoto(key)} title="Ajouter"><I.PlusCircle /></div>}
+              </div>
+              {hiddenCount > 0 && <button onClick={() => onOpenGallery(photos, label, key)} style={{ marginTop: 10, width: "100%", background: "#fff0f0", border: "1.5px solid #fdd", borderRadius: 10, padding: "9px 0", color: "#D32F2F", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}>Voir toutes les photos ({photos.length})</button>}
+            </>
+          )}
+          {photoErr && <span className="err-msg" style={{ marginTop: 6, display: "block" }}>Au moins une photo est requise</span>}
+        </div>
+        <div className="field-wrap" style={{ marginTop: 12 }}>
+          <label className="lbl">Commentaire <span className="req-star">*</span></label>
+          <Dictaphone value={comment} onChange={(v) => setReleves((curr) => ({ ...curr, [key + "Comment"]: v }))} hasError={!!commentErr} />
+          {commentErr && <span className="err-msg">Le commentaire est obligatoire</span>}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="cnt fade-in">
+      <div className="sec">
+        <div className="sec-hdr">
+          <div style={{ fontSize: 20, color: "#D32F2F" }}>◎</div>
+          <div className="sec-title">Relevés d'Étanchéité</div>
+        </div>
+        {RELEVES_FIELDS.map(([key, label], index) => (
+          <div key={key}>
+            <ToggleGroup
+              label={label}
+              value={releves[key] as string}
+              onChange={(value) => setReleves((current) => ({ ...current, [key]: value, ...(value !== "Non Conforme" ? { [key + "Photos"]: [], [key + "Comment"]: "" } : {}) }))}
+            />
+            {releves[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {index < RELEVES_FIELDS.length - 1 && <div className="sec-divider" />}
+          </div>
+        ))}
+      </div>
+      <div style={{ height: 8 }} />
+    </div>
+  );
+};
+
+export const renderStep5 = (
   points: Points,
   setPoints: React.Dispatch<React.SetStateAction<Points>>,
-): React.ReactElement => (
-  <div className="cnt fade-in">
-    <div className="sec">
-      <div className="sec-hdr">
-        <div style={{ fontSize: 18 }}>⊹</div>
-        <div className="sec-title">Points Singuliers</div>
-      </div>
-      {POINT_FIELDS.map(([key, label], index) => (
-        <div key={key}>
-          <ToggleGroup label={label} value={points[key]} onChange={(value) => setPoints((current) => ({ ...current, [key]: value }))} />
-          {index < POINT_FIELDS.length - 1 && <div className="sec-divider" />}
+  onAddPhoto: (key: string) => void,
+  onRemovePhoto: (key: string, photoId: number) => void,
+  onPhotoMenu: (menu: PhotoMenuState) => void,
+  onOpenGallery: (photos: Photo[], title: string, key: string) => void,
+  stepErrors: Step2Errors,
+): React.ReactElement => {
+  const nonConformeExtras = (key: string, label: string) => {
+    const photos = (points[key + "Photos"] as Photo[]) || [];
+    const comment = (points[key + "Comment"] as string) || "";
+    const fieldErr = stepErrors?.[key];
+    const photoErr = fieldErr?.photo;
+    const commentErr = fieldErr?.comment;
+    const VISIBLE = 2;
+    const shownPhotos = photos.slice(0, VISIBLE);
+    const hiddenCount = photos.length - VISIBLE;
+    return (
+      <div style={{ marginTop: 10, marginBottom: 4, padding: 14, background: "#fff8f8", borderRadius: 12, border: `1.5px solid ${photoErr || commentErr ? "#D32F2F" : "#fdd"}` }}>
+        <div>
+          <label className="lbl" style={{ color: "#D32F2F" }}>Photos <span className="req-star">*</span> ({photos.length}/5)</label>
+          {photos.length === 0 ? (
+            <div className="img-upload-empty" onClick={() => onAddPhoto(key)} style={photoErr ? { borderColor: "#D32F2F", background: "#fff5f5" } : {}}>
+              <div className="img-upload-empty-icon"><I.ImgPlus /></div>
+              <div className="img-upload-empty-lbl">Ajouter une photo</div>
+              <div className="img-upload-empty-sub">Appuyez pour sélectionner</div>
+            </div>
+          ) : (
+            <>
+              <div className="photo-grid">
+                {shownPhotos.map((photo, i) => {
+                  const isLast = i === VISIBLE - 1 && hiddenCount > 0;
+                  return (
+                    <div key={photo.id} className="ph-wrap" style={{ position: "relative" }}>
+                      <img src={photo.url} alt="" className="ph-img" style={isLast ? { filter: "brightness(0.35)" } : {}}
+                        onClick={() => isLast ? onOpenGallery(photos, label, key) : onPhotoMenu({ photo, onReplace: () => {}, onUpdate: (url) => setPoints((curr) => ({ ...curr, [key + "Photos"]: (curr[key + "Photos"] as Photo[]).map((p) => p.id === photo.id ? { ...p, url } : p) })) })}
+                      />
+                      {isLast && <div onClick={() => onOpenGallery(photos, label, key)} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", borderRadius: "inherit", zIndex: 1 }}><span style={{ color: "white", fontSize: 22, fontWeight: 800 }}>+{hiddenCount}</span></div>}
+                      <div className="ph-remove" style={{ zIndex: 2 }} onClick={() => onRemovePhoto(key, photo.id)}>×</div>
+                    </div>
+                  );
+                })}
+                {photos.length < 5 && <div className="ph-add-tile" onClick={() => onAddPhoto(key)} title="Ajouter"><I.PlusCircle /></div>}
+              </div>
+              {hiddenCount > 0 && <button onClick={() => onOpenGallery(photos, label, key)} style={{ marginTop: 10, width: "100%", background: "#fff0f0", border: "1.5px solid #fdd", borderRadius: 10, padding: "9px 0", color: "#D32F2F", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}>Voir toutes les photos ({photos.length})</button>}
+            </>
+          )}
+          {photoErr && <span className="err-msg" style={{ marginTop: 6, display: "block" }}>Au moins une photo est requise</span>}
         </div>
-      ))}
-      <div className="sec-divider" />
-      <div style={{ padding: "0 0 4px" }}>
-        <div className="sec-title" style={{ fontSize: 12, letterSpacing: 1, textTransform: "uppercase", color: "#1a1a1a", marginBottom: 12 }}>
-          Autres Écarts & Observations
+        <div className="field-wrap" style={{ marginTop: 12 }}>
+          <label className="lbl">Commentaire <span className="req-star">*</span></label>
+          <Dictaphone value={comment} onChange={(v) => setPoints((curr) => ({ ...curr, [key + "Comment"]: v }))} hasError={!!commentErr} />
+          {commentErr && <span className="err-msg">Le commentaire est obligatoire</span>}
         </div>
-        <textarea className="inp" placeholder="Précisez ici toute observation complémentaire..." value={points.observations} onChange={(event) => setPoints((current) => ({ ...current, observations: event.target.value }))} />
       </div>
+    );
+  };
+
+  return (
+    <div className="cnt fade-in">
+      <div className="sec">
+        <div className="sec-hdr">
+          <div style={{ fontSize: 18 }}>⊹</div>
+          <div className="sec-title">Points Singuliers</div>
+        </div>
+        {POINT_FIELDS.map(([key, label], index) => (
+          <div key={key}>
+            <ToggleGroup
+              label={label}
+              value={points[key] as string}
+              onChange={(value) => setPoints((current) => ({ ...current, [key]: value, ...(value !== "Non Conforme" ? { [key + "Photos"]: [], [key + "Comment"]: "" } : {}) }))}
+            />
+            {points[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {index < POINT_FIELDS.length - 1 && <div className="sec-divider" />}
+          </div>
+        ))}
+        <div className="sec-divider" />
+        <div style={{ padding: "0 0 4px" }}>
+          <div className="sec-title" style={{ fontSize: 12, letterSpacing: 1, textTransform: "uppercase", color: "#1a1a1a", marginBottom: 12 }}>
+            Autres Écarts & Observations
+          </div>
+          <textarea className="inp" placeholder="Précisez ici toute observation complémentaire..." value={points.observations as string} onChange={(event) => setPoints((current) => ({ ...current, observations: event.target.value }))} />
+        </div>
+      </div>
+      <div style={{ height: 8 }} />
     </div>
-    <div style={{ height: 8 }} />
-  </div>
-);
+  );
+};

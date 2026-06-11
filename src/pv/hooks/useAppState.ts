@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { AnnotPhotoState, GalleryState, PdfData, PhotoMenuState, PV } from "../types";
 
 export const useAppState = () => {
-  const [screen, setScreen] = useState<string>("splash");
+  const [screen, setScreen] = useState<string>("home");
   const [step, setStep] = useState<number>(1);
   const [showQuit, setShowQuit] = useState<boolean>(false);
   const [showProfile, setShowProfile] = useState<boolean>(false);
