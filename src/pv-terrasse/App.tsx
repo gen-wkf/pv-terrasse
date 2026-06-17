@@ -1,3 +1,4 @@
+// @refresh reset
 import React, { useEffect } from "react";
 import "./App.css";
 import "./styles.css";
@@ -59,18 +60,20 @@ export default function App() {
     if (!firstParticipant) return;
     const allValues = [
       ...SURFACE_FIELDS.map(([key]) => formMgmt.etatSurface[key] as string),
-      ...PARTIE_COURANTE_FIELDS.map(([key]) => formMgmt.partieCourante[key]),
-      ...RELEVES_FIELDS.map(([key]) => formMgmt.releves[key]),
-      ...POINT_FIELDS.map(([key]) => formMgmt.points[key]),
+      ...PARTIE_COURANTE_FIELDS.map(([key]) => formMgmt.partieCourante[key] as string),
+      ...RELEVES_FIELDS.map(([key]) => formMgmt.releves[key] as string),
+      ...POINT_FIELDS.map(([key]) => formMgmt.points[key] as string),
     ];
     const hasNonConforme = allValues.some((v) => v === "Non Conforme");
-    participantMgmt.updateParticipant(firstParticipant.id, "reception", hasNonConforme ? "NON" : "OUI");
-    if (!hasNonConforme) {
+    const hasReserves = reserveManagement.reserves.length > 0;
+    const shouldBeNON = hasNonConforme || hasReserves;
+    participantMgmt.updateParticipant(firstParticipant.id, "reception", shouldBeNON ? "NON" : "OUI");
+    if (!shouldBeNON) {
       participantMgmt.updateParticipant(firstParticipant.id, "miseEnConformite", new Date().toISOString().split("T")[0]);
     } else {
       participantMgmt.updateParticipant(firstParticipant.id, "miseEnConformite", "");
     }
-  }, [appState.step, formMgmt.etatSurface, formMgmt.partieCourante, formMgmt.releves, formMgmt.points]);
+  }, [appState.step, formMgmt.etatSurface, formMgmt.partieCourante, formMgmt.releves, formMgmt.points, reserveManagement.reserves]);
 
   const goHome = () => {
     if (appState.screen === "form") {
@@ -116,54 +119,6 @@ export default function App() {
   };
 
   const nextStep = () => {
-    if (appState.step === 2) {
-      const errors: Record<string, { photo: boolean; comment: boolean }> = {};
-      SURFACE_FIELDS.forEach(([key]) => {
-        if (formMgmt.etatSurface[key] !== "Non Conforme") return;
-        const photos = (formMgmt.etatSurface[key + "Photos"] as { id: number; url: string }[]) || [];
-        const comment = (formMgmt.etatSurface[key + "Comment"] as string || "").trim();
-        if (photos.length === 0 || !comment) errors[key] = { photo: photos.length === 0, comment: !comment };
-      });
-      if (Object.keys(errors).length > 0) {
-        setStep2Errors(errors);
-        toast("Photo(s) et commentaire requis pour chaque champ Non Conforme", "error");
-        return;
-      }
-      setStep2Errors({});
-    }
-    if (appState.step === 3) {
-      const errors: Record<string, { photo: boolean; comment: boolean }> = {};
-      PARTIE_COURANTE_FIELDS.forEach(([key]) => {
-        if (formMgmt.partieCourante[key] !== "Non Conforme") return;
-        const photos = (formMgmt.partieCourante[key + "Photos"] as { id: number; url: string }[]) || [];
-        const comment = (formMgmt.partieCourante[key + "Comment"] as string || "").trim();
-        if (photos.length === 0 || !comment) errors[key] = { photo: photos.length === 0, comment: !comment };
-      });
-      if (Object.keys(errors).length > 0) { setStep3Errors(errors); toast("Photo(s) et commentaire requis pour chaque champ Non Conforme", "error"); return; }
-      setStep3Errors({});
-    }
-    if (appState.step === 4) {
-      const errors: Record<string, { photo: boolean; comment: boolean }> = {};
-      RELEVES_FIELDS.forEach(([key]) => {
-        if (formMgmt.releves[key] !== "Non Conforme") return;
-        const photos = (formMgmt.releves[key + "Photos"] as { id: number; url: string }[]) || [];
-        const comment = (formMgmt.releves[key + "Comment"] as string || "").trim();
-        if (photos.length === 0 || !comment) errors[key] = { photo: photos.length === 0, comment: !comment };
-      });
-      if (Object.keys(errors).length > 0) { setStep4Errors(errors); toast("Photo(s) et commentaire requis pour chaque champ Non Conforme", "error"); return; }
-      setStep4Errors({});
-    }
-    if (appState.step === 5) {
-      const errors: Record<string, { photo: boolean; comment: boolean }> = {};
-      POINT_FIELDS.forEach(([key]) => {
-        if (formMgmt.points[key] !== "Non Conforme") return;
-        const photos = (formMgmt.points[key + "Photos"] as { id: number; url: string }[]) || [];
-        const comment = (formMgmt.points[key + "Comment"] as string || "").trim();
-        if (photos.length === 0 || !comment) errors[key] = { photo: photos.length === 0, comment: !comment };
-      });
-      if (Object.keys(errors).length > 0) { setStep5FieldErrors(errors); toast("Photo(s) et commentaire requis pour chaque champ Non Conforme", "error"); return; }
-      setStep5FieldErrors({});
-    }
     if (appState.step < 6) appState.setStep((current) => current + 1);
   };
 
@@ -428,6 +383,8 @@ export default function App() {
       </div>
     );
   }
+
+  if (appState.screen !== "form") return null;
 
   return (
     <>

@@ -1,6 +1,7 @@
 import PVView from "./PVView";
 import { I } from "../icons";
 import type { PV, Toast, User } from "../types";
+import smacLogo from "../assets/smac-logo.png";
 
 export const renderSplashScreen = (toasts: Toast[]): React.ReactElement => (
   <>
@@ -10,7 +11,7 @@ export const renderSplashScreen = (toasts: Toast[]): React.ReactElement => (
           <div className="splash-arc" />
           <div>
             <div className="splash-logo">
-              <img src="/smac-logo.png" alt="SMAC" />
+              <img src={smacLogo} alt="SMAC" />
             </div>
           </div>
         </div>
@@ -47,7 +48,7 @@ export const renderHomeScreen = (
         ) : (
           <div className="scr fade-in">
             <div className="topbar">
-              <img src="/smac-logo.png" alt="SMAC" className="tb-logo" />
+              <img src={smacLogo} alt="SMAC" className="tb-logo" />
               <div className="tb-title">PV de Réception<br />Support Terrasse</div>
               <div className="tb-avatar" style={{ background: "#1a1a3e" }}>{userInitials}</div>
             </div>
@@ -58,14 +59,7 @@ export const renderHomeScreen = (
                 <input type="text" placeholder=" Rechercher un PV ou un chantier..." value={search} onChange={(event) => onSearch(event.target.value)} autoComplete="off" />
               </div>
 
-              {filteredPVs.length === 0 ? (
-                <div className="empty-state">
-                  <div className="empty-icon"><I.EmptyDoc /></div>
-                  <div className="empty-title">Aucun PV trouvé</div>
-                  <div className="empty-desc">Commencez votre première inspection dès maintenant pour générer votre premier procès-verbal.</div>
-                  <button className="btn-red" onClick={onOpenNewPV}><I.Plus /> Créer un nouveau PV</button>
-                </div>
-              ) : (
+              {filteredPVs.length > 0 && (
                 <>
                   <div className="list-hdr">
                     <span className="list-t">Liste des PV</span>

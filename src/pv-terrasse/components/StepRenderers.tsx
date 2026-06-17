@@ -199,7 +199,7 @@ export const renderStep2 = (
                 }))
               }
             />
-            {etatSurface[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {/* {etatSurface[key] === "Non Conforme" && nonConformeExtras(key, label)} */}
             {index < SURFACE_FIELDS.length - 1 && <div className="sec-divider" />}
           </div>
         ))}
@@ -282,7 +282,7 @@ export const renderStep3 = (
               value={partieCourante[key] as string}
               onChange={(value) => setPartieCourante((current) => ({ ...current, [key]: value, ...(value !== "Non Conforme" ? { [key + "Photos"]: [], [key + "Comment"]: "" } : {}) }))}
             />
-            {partieCourante[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {/* {partieCourante[key] === "Non Conforme" && nonConformeExtras(key, label)} */}
             {index < PARTIE_COURANTE_FIELDS.length - 1 && <div className="sec-divider" />}
           </div>
         ))}
@@ -365,7 +365,7 @@ export const renderStep4 = (
               value={releves[key] as string}
               onChange={(value) => setReleves((current) => ({ ...current, [key]: value, ...(value !== "Non Conforme" ? { [key + "Photos"]: [], [key + "Comment"]: "" } : {}) }))}
             />
-            {releves[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {/* {releves[key] === "Non Conforme" && nonConformeExtras(key, label)} */}
             {index < RELEVES_FIELDS.length - 1 && <div className="sec-divider" />}
           </div>
         ))}
@@ -448,7 +448,7 @@ export const renderStep5 = (
               value={points[key] as string}
               onChange={(value) => setPoints((current) => ({ ...current, [key]: value, ...(value !== "Non Conforme" ? { [key + "Photos"]: [], [key + "Comment"]: "" } : {}) }))}
             />
-            {points[key] === "Non Conforme" && nonConformeExtras(key, label)}
+            {/* {points[key] === "Non Conforme" && nonConformeExtras(key, label)} */}
             {index < POINT_FIELDS.length - 1 && <div className="sec-divider" />}
           </div>
         ))}
